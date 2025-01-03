@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 
 const UPIPayment = () => {
   const [qrUrl, setQrUrl] = useState<string>('');
+  const [amount, setAmount] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string>('');
   const [paymentStatus, setPaymentStatus] = useState<
@@ -57,17 +58,6 @@ const UPIPayment = () => {
       img.style.display = 'none';
       document.body.appendChild(img);
 
-      // Attempt to trigger UPI app
-      setTimeout(() => {
-        try {
-          window.location.href = intent;
-        } catch (err) {
-          console.log('🚀 ~ setTimeout ~ err:', err);
-          // If direct intent fails, show QR visibly
-          img.style.display = 'block';
-        }
-      }, 1000);
-
       setPaymentStatus('success');
     } catch (err) {
       console.log('🚀 ~ handleQRPayment ~ err:', err);
@@ -83,13 +73,29 @@ const UPIPayment = () => {
       <div className="space-y-4">
         <div className="text-center">
           <h2 className="text-xl font-semibold mb-2">UPI Payment</h2>
-          <p className="text-sm text-gray-600">Amount: ₹100.00</p>
+          <p className="text-sm text-gray-600">Amount: ₹{amount.toFixed(2)}</p>
         </div>
 
         <Input
           className="w-full"
           value={baseIntent}
-          onChange={e => setBaseIntent(e.target.value)}
+          onChange={e => {
+            const { value } = e.target;
+            setBaseIntent(() => value);
+            setQrUrl('');
+            setError('');
+            setPaymentStatus('idle');
+            const url = new URL(value);
+            const am = url.searchParams.get('am');
+            if (am) setAmount(parseFloat(am));
+          }}
+          placeholder="Enter your UPI intent"
+          type="text"
+          onKeyDown={e => {
+            if (e.key === 'Enter') {
+              handleDirectPayment();
+            }
+          }}
         />
 
         {qrUrl && (
@@ -102,7 +108,7 @@ const UPIPayment = () => {
           <Button
             onClick={handleDirectPayment}
             className="w-full"
-            disabled={loading}>
+            disabled={loading || !baseIntent}>
             Pay Now
           </Button>
 
@@ -110,7 +116,7 @@ const UPIPayment = () => {
             onClick={handleQRPayment}
             variant="outline"
             className="w-full"
-            disabled={loading}>
+            disabled={loading || !baseIntent}>
             Pay via QR Code
           </Button>
         </div>
