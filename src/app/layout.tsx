@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Checkout Page | PayBolt',
-  description: 'PayBolt Payment Checkout Page',
+  title: 'Checkout Page',
+  description: 'Payment Checkout Page',
 };
 
 export default function RootLayout({
