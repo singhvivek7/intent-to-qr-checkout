@@ -88,7 +88,6 @@ const UPIPayment = () => {
               Amount: ₹{amount.toFixed(2)}
             </p>
           </div>
-
           <Input
             className="w-full"
             value={baseIntent}
